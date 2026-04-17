@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auth System</title>
+    <style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .box {
+        background: #1e293b;
+        padding: 30px 25px;
+        border-radius: 12px;
+        width: 350px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px;
+        margin: 8px 0;
+        border-radius: 6px;
+        border: none;
+        outline: none;
+        font-size: 14px;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+        background: #38bdf8;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        background: #0ea5e9;
+    }
+
+    .toggle {
+        text-align: center;
+        margin-top: 12px;
+        font-size: 14px;
+        color: #38bdf8;
+        cursor: pointer;
+    }
+
+    .toggle:hover {
+        text-decoration: underline;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    #dashboard {
+        text-align: center;
+    }
+
+    #welcomeText {
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+
+    pre {
+        background: #020617;
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        margin-top: 10px;
+        text-align: left;
+        overflow-x: auto;
+    }
+</style>
+</head>
+<body>
+
+<div class="box">
+
+    <!-- LOGIN -->
+    <div id="loginSection">
+        <h2>Login</h2>
+        <input id="loginUsername" placeholder="Username">
+        <input id="loginPassword" type="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <div class="toggle" onclick="showSignup()">Don't have an account? Signup</div>
+    </div>
+
+    <!-- SIGNUP -->
+    <div id="signupSection" class="hidden">
+        <h2>Signup</h2>
+        <input id="signupUsername" placeholder="Username">
+        <input id="signupPassword" type="password" placeholder="Password">
+        <button onclick="signup()">Signup</button>
+        <div class="toggle" onclick="showLogin()">Already have an account? Login</div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="hidden">
+        <h2>Welcome</h2>
+        <p id="welcomeText"></p>
+
+        <button onclick="getUser()">Get My Details</button>
+        <pre id="output"></pre>
+
+        <button onclick="logout()">Logout</button>
+    </div>
+
+</div>
+
+<script>
+const BASE_URL = "http://127.0.0.1:5000";
+let currentUser = "";
+
+// UI SWITCH
+function showSignup() {
+    loginSection.classList.add("hidden");
+    signupSection.classList.remove("hidden");
+}
+
+function showLogin() {
+    signupSection.classList.add("hidden");
+    loginSection.classList.remove("hidden");
+}
+
+// SIGNUP
+function signup() {
+    fetch(`${BASE_URL}/signup`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            username: signupUsername.value,
+            password: signupPassword.value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        showLogin();
+    });
+}
+
+// LOGIN
+function login() {
+    fetch(`${BASE_URL}/login`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            username: loginUsername.value,
+            password: loginPassword.value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.message === "Login successful") {
+            currentUser = loginUsername.value;
+            welcomeText.innerText = "Logged in as: " + currentUser;
+
+            loginSection.classList.add("hidden");
+            dashboard.classList.remove("hidden");
+        } else {
+            alert("Invalid login");
+        }
+    });
+}
+
+// GET USER
+function getUser() {
+    fetch(`${BASE_URL}/userdetails?username=${currentUser}`)
+    .then(res => res.json())
+    .then(data => {
+        output.innerText = JSON.stringify(data, null, 2);
+    });
+}
+
+// LOGOUT
+function logout() {
+    dashboard.classList.add("hidden");
+    loginSection.classList.remove("hidden");
+    output.innerText = "";
+}
+</script>
+
+</body>
+</html>

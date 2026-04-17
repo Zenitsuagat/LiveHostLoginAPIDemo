@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import os
 from dotenv import load_dotenv
+from flask import render_template
 
 load_dotenv()
 
@@ -96,7 +97,7 @@ def user_details():
 # ----------------------
 @app.route('/')
 def home():
-    return jsonify({"message": "API is running 🚀"})
+    return render_template('index.html')
 
 # ----------------------
 # RUN
